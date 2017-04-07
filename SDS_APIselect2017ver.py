@@ -88,23 +88,35 @@ if __name__=="__main__":
             print('\t' + data)
 
     api_module = __import__('API.' + options.api)             # モジュールの動的インポート
-    print ("結果：" + eval('api_module.' + options.api + '.send_and_get')("こんにちは"))
+
 
     # 音声認識器(julius)起動 %%%%%%%%%%%%%%%%%%%%%%
     # ●●
 
     # スリープ（1秒毎にカウントダウンを表示）
-    print ("Waiting for julius... ", end="")
-    countdown(3)
+    # print ("Waiting for julius... ", end="")
+    # countdown(3)
 
     # 音声合成器(OpenJTalk)起動 %%%%%%%%%%%%%%%%%%%
     # ●●
 
     # スリープ（1秒毎にカウントダウンを表示）
-    print ("Waiting for openJTalk... ", end="")
-    countdown(3)
+    # print ("Waiting for openJTalk... ", end="")
+    # countdown(3)
 
     # 対話ループ ##################################
+    message = ''
+    while message != 'バイバイ':
+        print('あなた：', file=sys.stderr, end="")
+        sys.stderr.flush()
+        message = input('')
+        resp = eval('api_module.' + options.api + '.send_and_get')(message)
+        
+        print('相手　 : ', file=sys.stderr, end="")
+        sys.stderr.flush()
+        print(resp)
+
+
     # ●●
     # バイバイ で終了
 

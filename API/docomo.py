@@ -9,8 +9,9 @@ shiritori_flag = False              # True:しりとりモード
 import urllib.request, urllib.parse # urlエンコードや，送信など
 import re                           # 検索，置換など
 import sys                          # system周りの制御用（exit）
+import os                           # ファイルパス取得
 
-sys.path.append('../API')
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 # Docomo 対話APIモジュール ---------------
 from doco.client import Client
