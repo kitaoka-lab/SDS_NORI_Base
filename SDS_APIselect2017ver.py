@@ -19,7 +19,7 @@ API ディレクトリに，対話APIのpythonスクリプトを入れると，�
 
 #### API pythonスクリプトの仕様
 - 以下の関数を用意
-    - input("入力")：ユーザ発話を入力．返り値はシステム出力
+    - send_and_get("入力")：ユーザ発話を入力．返り値はシステム出力
 - （おまけ的要素）
     - APIスクリプトを単体で起動した場合には，標準入力・標準出力にて，テキストで対話が行えるようにする
 
@@ -28,22 +28,20 @@ API ディレクトリに，対話APIのpythonスクリプトを入れると，�
 
 # 各種設定項目 ##################################################
 OSlist = ["Windows", "MacOS", "Linux"]      # 対応するOSのリスト（platform.system()で得られる値にすること）
-APIlist = ["noby", "docomo", "userlocal"]   # 【将来は自動取得にする】対応APIリスト
-
 
 # モジュール読み込み #############################################
 from optparse import OptionParser   # オプション解析用
 import platform                     # 利用中のOSの名前を読み込む
 import sys                          # system周りの制御用
 import time                         # sleepを利用する
-
+import glob, os                     # APIのファイル名を取得する
 
 # オプション解析 #################################################
 def readOption():
     usage = "usage: %prog [options]"
     parser = OptionParser(usage=usage, version="%prog 0.2")
-    parser.add_option("-a", "--api", type="string", dest="api", default=APIlist[0],
-                    help="select dialogue API (" + ', '.join(APIlist) + ")", metavar="API")
+    parser.add_option("-a", "--api", type="string", dest="api", default=APIList[0],
+                    help="select dialogue API (" + ', '.join(APIList) + ")", metavar="API")
     parser.add_option("-d", "--debug",
                     action="store_true", dest="debug", default=False,
                     help="print all debug messages")
@@ -75,6 +73,9 @@ def countdown(t): # in seconds
 #################################################################
 # メイン部分（本スクリプトを直接実行した際に実行される部分） #########
 if __name__=="__main__":
+    # APIファイルの存在チェック(オプション表示用にリストを作る) %%%%%%%%%%%%%%%%%%%
+    APIList = [os.path.basename(r.replace('.py', '')) for r in glob.glob('./API/*')]     # APIディレクトリをlsして，パスをファイル名だけにして，リスト化
+
     # オプションチェック %%%%%%%%%%%%%%%%%%%%%%%%%%
     (options, args) = readOption()
     if options.api: print ("API: " + options.api)
@@ -88,19 +89,24 @@ if __name__=="__main__":
         sys.exit()
 
     # API 読み込み & 初期化 %%%%%%%%%%%%%%%%%%%%%%%
-    # ●●
-
+    if options.debug:
+        print ('API list:')
+        for data in APIList:
+            print('\t' + data)
+        
 
     # 音声認識器(julius)起動 %%%%%%%%%%%%%%%%%%%%%%
     # ●●
 
     # スリープ（1秒毎にカウントダウンを表示）
+    print ("Waiting for julius... ", end="")
     countdown(3)
 
     # 音声合成器(OpenJTalk)起動 %%%%%%%%%%%%%%%%%%%
     # ●●
 
     # スリープ（1秒毎にカウントダウンを表示）
+    print ("Waiting for openJTalk... ", end="")
     countdown(3)
 
     # 対話ループ ##################################
