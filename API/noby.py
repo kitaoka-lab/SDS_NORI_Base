@@ -1,39 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-# 雑談対話API [https://www.cotogoto.ai/ noby]
-
-## 情報
-元プログラム：北岡研究室　2016年度B4学生
-本プログラム：北岡研究室　特任研究員　西村良太　ryota@nishimura.name
-
-開始日：2017年4月7日
-
-## 内容
-CotoGotoの対話APIを利用する
-標準入力からのテキスト入力を受け，WebAPIにテキストを送信し，
-標準出力に応答テキストを出力する
-
-## 特徴
-### APIのプラグイン的利用に対応
-API ディレクトリに，対話APIのpythonスクリプトを入れると，SDS_APIselect2017verから利用する事ができる．
-
-#### API pythonスクリプトの仕様
-- 以下の関数を用意
-    - send_and_get("入力")：ユーザ発話を入力．返り値はシステム出力
-- （おまけ的要素）
-    - APIスクリプトを単体で起動した場合には，標準入力・標準出力にて，テキストで対話が行えるようにする
-
-
-'''
-
 # 各種設定項目 ##################################################
 APP_URL = 'https://www.cotogoto.ai/webapi/noby.json?'
 APP_KEY = "99670a929b9248990fb3652d3882f236"
-host = 'localhost'
-port = 10500
-bufsize = 4096
 
 # モジュール読み込み #############################################
 import urllib.request, urllib.parse # urlエンコードや，送信など

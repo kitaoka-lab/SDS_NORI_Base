@@ -46,17 +46,7 @@ def readOption():
                     action="store_true", dest="debug", default=False,
                     help="print all debug messages")
 
-    # 解析結果を保存
-    (options, args) = parser.parse_args()
-
-    # # エラー処理（オプションが足りなかったらHELP表示）
-    # if not options.api:
-    #     parser.print_help()
-    #     print ("\n[message] You have to choose API type (ex. -a noby). APIs are (" + ', '.join(APIlist) + ").\n")
-    #     sys.exit()
-
-    # エラーがなければ，オプション解析結果を返す
-    return (options, args)
+    return parser.parse_args()
 
 
 # カウントダウン スリープ #########################################
