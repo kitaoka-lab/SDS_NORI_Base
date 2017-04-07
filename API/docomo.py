@@ -10,6 +10,8 @@ import urllib.request, urllib.parse # urlエンコードや，送信など
 import re                           # 検索，置換など
 import sys                          # system周りの制御用（exit）
 
+sys.path.append('../API')
+
 # Docomo 対話APIモジュール ---------------
 from doco.client import Client
 

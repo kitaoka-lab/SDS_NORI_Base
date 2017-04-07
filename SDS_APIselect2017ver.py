@@ -35,6 +35,8 @@ import platform                     # 利用中のOSの名前を読み込む
 import sys                          # system周りの制御用
 import time                         # sleepを利用する
 import glob, os                     # APIのファイル名を取得する
+#import importlib                    # モジュールの動的読み込み
+#import API                          # APIディレクトリ内の全部のAPIモジュールを，インポートする
 
 # オプション解析 #################################################
 def readOption():
@@ -64,7 +66,8 @@ def countdown(t): # in seconds
 # メイン部分（本スクリプトを直接実行した際に実行される部分） #########
 if __name__=="__main__":
     # APIファイルの存在チェック(オプション表示用にリストを作る) %%%%%%%%%%%%%%%%%%%
-    APIList = [os.path.basename(r.replace('.py', '')) for r in glob.glob('./API/*')]     # APIディレクトリをlsして，パスをファイル名だけにして，リスト化
+    APIList = [os.path.basename(r.replace('.py', '')) for r in glob.glob('./API/*.py')]     # APIディレクトリをlsして，パスをファイル名だけにして，リスト化
+    APIList.pop()
 
     # オプションチェック %%%%%%%%%%%%%%%%%%%%%%%%%%
     (options, args) = readOption()
@@ -78,12 +81,14 @@ if __name__=="__main__":
         print ("\n[ERROR] This program does not support this OS (" + platform.system() + "). Only for (" + ', '.join(OSlist) + ").")
         sys.exit()
 
-    # API 読み込み & 初期化 %%%%%%%%%%%%%%%%%%%%%%%
+    # API 読み込み %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if options.debug:
         print ('API list:')
         for data in APIList:
             print('\t' + data)
-        
+
+    api_module = __import__('API.' + options.api)             # モジュールの動的インポート
+    print ("結果：" + eval('api_module.' + options.api + '.send_and_get')("こんにちは"))
 
     # 音声認識器(julius)起動 %%%%%%%%%%%%%%%%%%%%%%
     # ●●
