@@ -24,3 +24,8 @@ API ディレクトリに，対話APIのpythonスクリプトを入れると，�
 
 ## 実行方法
 ほげほげ
+
+## 注意
+docomo　APIを使うときには，simplejsonモジュールをインストールする必要がある
+
+`$ pip install shimplejson`
