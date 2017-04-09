@@ -28,6 +28,11 @@ API ディレクトリに，対話APIのpythonスクリプトを入れると，�
 
 # 各種設定項目 ##################################################
 OSlist = ["Windows", "MacOS", "Linux"]      # 対応するOSのリスト（platform.system()で得られる値にすること）
+INlist = ["text", "julius"]                 # 対応する入力方法のリスト（一つ目がデフォルトになる）
+OUTlist = ["text", "jtalk"]                 # 対応する出力方法のリスト（一つ目がデフォルトになる）
+
+JULIUS_HOST = 'localhost'
+JULIUS_PORT = 10500
 
 # モジュール読み込み #############################################
 from optparse import OptionParser   # オプション解析用
@@ -41,12 +46,16 @@ import glob, os                     # APIのファイル名を取得する
 # オプション解析 #################################################
 def readOption():
     usage = "usage: %prog [options]"
-    parser = OptionParser(usage=usage, version="%prog 0.2")
+    parser = OptionParser(usage=usage, version="%prog 1.0")
     parser.add_option("-a", "--api", type="string", dest="api", default=APIList[0],
                     help="select dialogue API (" + ', '.join(APIList) + ")", metavar="API")
     parser.add_option("-d", "--debug",
                     action="store_true", dest="debug", default=False,
                     help="print all debug messages")
+    parser.add_option("-i", "--input", type="string", dest="input", default=INlist[0],
+                    help="select input method (" + ', '.join(INlist) + ")", metavar="InputMethod")
+    parser.add_option("-o", "--output", type="string", dest="output", default=OUTlist[0],
+                    help="select output method (" + ', '.join(OUTlist) + ")", metavar="OutputMethod")
 
     return parser.parse_args()
 
@@ -71,8 +80,31 @@ if __name__=="__main__":
 
     # オプションチェック %%%%%%%%%%%%%%%%%%%%%%%%%%
     (options, args) = readOption()
-    if options.api: print ("API: " + options.api)
+    
+    # API -------------------------------------
+    if options.api in APIList:
+        print ("API: " + options.api)
+    else:
+        print ("\n[ERROR] There is no such API (" + options.api + "). Only for (" + ', '.join(APIList) + ").")
+        sys.exit()
+
+    # INPUT Method -------------------------------------
+    if options.input in INlist:
+        print ("Input: " + options.input)
+    else:
+        print ("\n[ERROR] There is no such INPUT (" + options.input + "). Only for (" + ', '.join(INlist) + ").")
+        sys.exit()
+
+    # Output Method -------------------------------------
+    if options.output in OUTlist:
+        print ("Output: " + options.output)
+    else:
+        print ("\n[ERROR] There is no such OUTPUT (" + options.output + "). Only for (" + ', '.join(OUTlist) + ").")
+        sys.exit()
+    
+    # debug flag ----------------------------------------
     if options.debug: print ("DEBUG: " + str(options.debug))
+
 
     # OSチェック %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if platform.system() in OSlist:
@@ -91,53 +123,56 @@ if __name__=="__main__":
 
 
     # 音声認識器(julius)起動 %%%%%%%%%%%%%%%%%%%%%%
-    # ●●
+    if options.input == "julius":               # input オプションが「julius」に設定されていたら
+        from speech import julius               # Juliusモジュール読み込み（サーバ起動など，初期化処理もなされる）
+        import socket                           # juliusとのソケット通信用
 
-    # スリープ（1秒毎にカウントダウンを表示）
-    # print ("Waiting for julius... ", end="")
-    # countdown(3)
+        # スリープ（1秒毎にカウントダウンを表示）
+        print ("Waiting for julius... ", end="")
+        countdown(5)
 
-    # 音声合成器(OpenJTalk)起動 %%%%%%%%%%%%%%%%%%%
-    # ●●
+         # TCPクライアントを作成し接続
+        print ("Connect to julius server ...  ")
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            client.connect((JULIUS_HOST, JULIUS_PORT))
+        except:
+            print ('Unalbe to connect julius server ...')  
+            exit()
+        print ("OK!")
 
-    # スリープ（1秒毎にカウントダウンを表示）
-    # print ("Waiting for openJTalk... ", end="")
-    # countdown(3)
+    # 音声合成器(openJTalk)モジュール読み込み %%%%%%%%%%%%
+    if options.output == "jtalk":               # input オプションが「julius」に設定されていたら
+        from speech import jtalk                # Juliusモジュール読み込み（サーバ起動など，初期化処理もなされる）
 
     # 対話ループ ##################################
     message = ''
-    while message != 'バイバイ':
+    while 'バイバイ' not in message:
+        # ユーザ入力ターン %%%%%%%%%%%%%%%%%%%%%
         print('あなた：', file=sys.stderr, end="")
         sys.stderr.flush()
-        message = input('')
+        if options.input == "text":         # 入力方法が text なら
+            message = input('')
+        elif options.input == "julius":     # 入力方法が julius なら
+            message = julius.julius_output(client)
+            print (message)
+
+        # ユーザ入力を，APIに投げる %%%%%%%%%%%%%
         resp = eval('api_module.' + options.api + '.send_and_get')(message)
-        
         print('相手　 : ', file=sys.stderr, end="")
         sys.stderr.flush()
         print(resp)
 
-
-    # ●●
-    # バイバイ で終了
-
-
-    # ユーザ入力読み込み --------------
-    # 　→ 読み込んで表示
+        if options.output == "jtalk":
+            jtalk.jtalk(resp)
 
 
-    # APIに入力 ----------------------
+        # 音声合成器(OpenJTalk)起動 %%%%%%%%%%%%%%%%%%%
 
 
-    # システム出力
-    # 　→ 読み込んで表示
-    # 　→ 音声合成
+
     # 対話ループここまで ##########################
 
-
-    # 最後のシステム発話（バイバイに対する）%%%%%%%%%
-    # ●●
-
-
     # 終了処理 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+    julius.kill()   #　ちゃんと動かず●●
 
