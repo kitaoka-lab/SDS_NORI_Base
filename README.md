@@ -76,7 +76,6 @@ Options:
                         select input method (text, julius)
   -o OutputMethod, --output=OutputMethod
                         select output method (text, jtalk)
-PS C:\SDS_APIselect2017ver>
 ```
 
 オプションを付けずに起動すると，テキスト入出力で，APIと対話するモードになる．デフォルトのAPIは，ファイル名順なので「docomo」になる．
