@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # 各種設定項目 ##################################################
-OSlist = ["Windows", "MacOS", "Linux"]      # 対応するOSのリスト（platform.system()で得られる値にすること）
+OSlist = ["Windows", "Darwin", "Linux"]      # 対応するOSのリスト（platform.system()で得られる値にすること）
 voice_char = 'mei/mei_normal.htsvoice'      # 声　mei, m100
 # voice_char =  'm100/nitech_jp_atr503_m001.htsvoice'
 speech_rate = '1.0'                         # 話速
@@ -26,11 +26,11 @@ if os_now == 'Windows':
     bat_name = 'open_jtalk_win.exe'
     dic_name = 'dic_win'
     play_name = 'play'
-elif os_now == 'MacOS':
+elif os_now == 'Darwin':
     os_name = 'osx'
     bat_name = 'open_jtalk_mac'
     dic_name = 'dic'
-    play_name = 'aplay' 
+    play_name = 'afplay' 
 elif os_now == 'Linux':
     os_name = 'linux'
     bat_name = 'jtalk'
@@ -57,13 +57,29 @@ def jtalk(t):
     c = subprocess.Popen(cmd, stdin=subprocess.PIPE)
 
     # テキストを渡す %%%%%%%%%%%
-    c.stdin.write(t.encode('sjis'))
+    if os_name == "windows":
+        c.stdin.write(t.encode('sjis'))
+    elif os_name == "osx":
+       c.stdin.write(t.encode('utf-8'))
+    elif os_name == "linux":
+        c.stdin.write(t.encode('utf-8'))
+
     c.stdin.close()
     c.wait()
 
     # 出力されたwaveファイルを再生 %
     FNULL = open(os.devnull, 'w')
-    wavplay = [os.path.abspath(os.path.dirname(__file__)) + '/' + play_name, dir + 'tmp/open_jtalk.wav']
+    if os_name == "windows":
+        player = os.path.abspath(os.path.dirname(__file__)) + '/' + play_name
+    elif os_name == "osx":
+        player = play_name
+    elif os_name == "linux":
+        player = ""
+    else:
+        print ("\n[ERROR] This program does not support this OS (" + os_now + "). Only for (" + ', '.join(OSlist) + ").", file = sys.stderr)
+        sys.exit()
+
+    wavplay = [player, dir + 'tmp/open_jtalk.wav']
     wr = subprocess.Popen(wavplay, stdout=FNULL, stderr=subprocess.STDOUT)
     wr.wait()
 

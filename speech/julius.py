@@ -10,7 +10,7 @@ import time                         # sleep用
 import re                           # 文字列検索用
 
 # 各種設定項目 ##################################################
-OSlist = ["Windows", "MacOS", "Linux"]      # 対応するOSのリスト（platform.system()で得られる値にすること）
+OSlist = ["Windows", "Darwin", "Linux"]      # 対応するOSのリスト（platform.system()で得られる値にすること）
 
 JULIUS_HOST = 'localhost'
 JULIUS_PORT = 10500
@@ -26,13 +26,13 @@ else:
 
 if os_now == 'Windows':
     os_name = 'windows'
-    bat_name = 'julius_windows.bat'
-elif os_now == 'MacOS':
+    bat_name = 'julius_windows_gmm.bat'
+elif os_now == 'Darwin':
     os_name = 'osx'
-    bat_name = 'julius_osx.sh'
+    bat_name = 'julius_osx_gmm.sh'
 elif os_now == 'Linux':
     os_name = 'linux'
-    bat_name = 'julius_linux.sh'
+    bat_name = 'julius_linux_gmm.sh'
 else :
     print ("\n[ERROR] This program does not support this OS (" + os_now + "). Only for (" + ', '.join(OSlist) + ").", file = sys.stderr)
     sys.exit()
@@ -43,7 +43,12 @@ print ("julius startup ... ", end="", file = sys.stderr)
 sys.stderr.flush()
 
 cmd = os.path.abspath(os.path.dirname(__file__)) + '/' + bat_name
-julius_proc = subprocess.Popen([cmd, os.path.abspath(os.path.dirname(__file__))], stdout=subprocess.PIPE, shell=True)
+if os_now == 'Windows':
+    julius_proc = subprocess.Popen([cmd, os.path.abspath(os.path.dirname(__file__))], stdout=subprocess.PIPE, shell=True)
+elif os_now == 'Darwin':
+    julius_proc = subprocess.Popen([cmd + ' ' + os.path.abspath(os.path.dirname(__file__))], stdout=subprocess.PIPE, shell=True)
+elif os_now == 'Linux':
+    julius_proc = subprocess.Popen([cmd + ' ' + os.path.abspath(os.path.dirname(__file__))], stdout=subprocess.PIPE, shell=True)
 
 
 # カウントダウン スリープ #########################################
