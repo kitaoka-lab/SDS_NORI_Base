@@ -43,19 +43,19 @@ openJTalk は，以下のようなディレクトリ構成になるように，�
 
 http://open-jtalk.sourceforge.net/
 
-- speech
-    - openjtalk
-        - 1.09
-            - bin
-            - dic (utf8版）
-            - dic_win（shiftjis版）
-            - include
-            - lib
-        - bin（win版，mac版の実行ファイル）
-        - tmp（wavファイルがここに生成される）
-        - voice（htsvoiceファイル）
-            - m100
-            - mei
+
+- openjtalk
+    - 1.09
+        - bin
+        - dic (utf8版）
+        - dic_win（shiftjis版）
+        - include
+        - lib
+    - bin（win版，mac版の実行ファイル）
+    - tmp（wavファイルがここに生成される）
+    - voice（htsvoiceファイル）
+        - m100
+        - mei
 
 ## 実行方法
 SDS_APIselect2017ver.pyを実行するだけ．
