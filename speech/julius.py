@@ -10,10 +10,13 @@ import time                         # sleep用
 import re                           # 文字列検索用
 
 # 各種設定項目 ##################################################
-OSlist = ["Windows", "Darwin", "Linux"]      # 対応するOSのリスト（platform.system()で得られる値にすること）
+OSlist = ["Windows", "Darwin", "Linux"]     # 対応するOSのリスト（platform.system()で得られる値にすること）
 
-JULIUS_HOST = 'localhost'
-JULIUS_PORT = 10500
+AM_SELECT = 'gmm'                           # 音響モデルの選択 gmm か　dnn
+DEBUG_FLAG = False                          # デバッグ出力（stderrに詳細認識結果）を出力するか
+
+JULIUS_HOST = 'localhost'                   # juliusのホスト
+JULIUS_PORT = 10500                         # juliusのポート
 
 # 初期化処理 ####################################################
 # OSチェック %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -26,13 +29,13 @@ else:
 
 if os_now == 'Windows':
     os_name = 'windows'
-    bat_name = 'julius_windows_gmm.bat'
+    bat_name = 'julius_windows_' + AM_SELECT + '.bat'
 elif os_now == 'Darwin':
     os_name = 'osx'
-    bat_name = 'julius_osx_gmm.sh'
+    bat_name = 'julius_osx_' + AM_SELECT + '.sh'
 elif os_now == 'Linux':
     os_name = 'linux'
-    bat_name = 'julius_linux_gmm.sh'
+    bat_name = 'julius_linux_' + AM_SELECT + '.sh'
 else :
     print ("\n[ERROR] This program does not support this OS (" + os_now + "). Only for (" + ', '.join(OSlist) + ").", file = sys.stderr)
     sys.exit()
@@ -42,13 +45,15 @@ else :
 print ("julius startup ... ", end="", file = sys.stderr)
 sys.stderr.flush()
 
-cmd = os.path.abspath(os.path.dirname(__file__)) + '/' + bat_name
+cmd_path = os.path.abspath(os.path.dirname(__file__)) + '/' + bat_name
 if os_now == 'Windows':
-    julius_proc = subprocess.Popen([cmd, os.path.abspath(os.path.dirname(__file__))], stdout=subprocess.PIPE, shell=True)
+    cmd = [cmd_path, os.path.abspath(os.path.dirname(__file__))]
 elif os_now == 'Darwin':
-    julius_proc = subprocess.Popen([cmd + ' ' + os.path.abspath(os.path.dirname(__file__))], stdout=subprocess.PIPE, shell=True)
+    cmd = [cmd_path + ' ' + os.path.abspath(os.path.dirname(__file__))]
 elif os_now == 'Linux':
-    julius_proc = subprocess.Popen([cmd + ' ' + os.path.abspath(os.path.dirname(__file__))], stdout=subprocess.PIPE, shell=True)
+    cmd = [cmd_path + ' ' + os.path.abspath(os.path.dirname(__file__))]
+
+julius_proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
 
 
 # カウントダウン スリープ #########################################
@@ -58,8 +63,8 @@ def countdown(t): # in seconds
         print(str(i) + " ", end="")
         sys.stdout.flush()
         time.sleep(1)
-
     print("")
+
 
 # julius kill ##################################################
 def kill():
@@ -98,14 +103,15 @@ def julius_output(sock):
                 phone_list +=  re.search('PHONE="(.*?)"', line).group(1) + ' '
                 cm_list +=  re.search('CM="(.*?)"', line).group(1) + ' '
 
-        # # 結果の出力（stderr） %%%%%%%%%%%%%%%%%%%%%
-        # print('\n[Julius ASR result]', file = sys.stderr)
-        # print('WORD\t:' + word_list, file = sys.stderr)
-        # print('CLASS\t:' + classid_list, file = sys.stderr)
-        # print('PHONE\t: ' + phone_list, file = sys.stderr)
-        # print('CM\t:' + cm_list, file = sys.stderr)
-        # print('', file = sys.stderr)
-        # sys.stderr.flush()
+        # 結果の出力（stderr） %%%%%%%%%%%%%%%%%%%%%
+        if DEBUG_FLAG:
+            print('\n[Julius ASR result]', file = sys.stderr)
+            print('WORD\t:' + word_list, file = sys.stderr)
+            print('CLASS\t:' + classid_list, file = sys.stderr)
+            print('PHONE\t: ' + phone_list, file = sys.stderr)
+            print('CM\t:' + cm_list, file = sys.stderr)
+            print('', file = sys.stderr)
+            sys.stderr.flush()
 
         # 結果の出力（return） %%%%%%%%%%%%%%%%%%%%%
         return re.sub(' ', '', word_list)

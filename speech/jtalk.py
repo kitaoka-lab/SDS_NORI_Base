@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # 各種設定項目 ##################################################
-OSlist = ["Windows", "Darwin", "Linux"]      # 対応するOSのリスト（platform.system()で得られる値にすること）
+OSlist = ["Windows", "Darwin", "Linux"]     # 対応するOSのリスト（platform.system()で得られる値にすること）
 voice_char = 'mei/mei_normal.htsvoice'      # 声　mei, m100
 # voice_char =  'm100/nitech_jp_atr503_m001.htsvoice'
+
 speech_rate = '1.0'                         # 話速
 
 # モジュール ################################################
@@ -60,7 +61,7 @@ def jtalk(t):
     if os_name == "windows":
         c.stdin.write(t.encode('sjis'))
     elif os_name == "osx":
-       c.stdin.write(t.encode('utf-8'))
+        c.stdin.write(t.encode('utf-8'))
     elif os_name == "linux":
         c.stdin.write(t.encode('utf-8'))
 
