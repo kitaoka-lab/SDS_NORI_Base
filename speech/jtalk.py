@@ -25,12 +25,12 @@ else:
 if os_now == 'Windows':
     os_name = 'windows'
     bat_name = 'open_jtalk_win.exe'
-    dic_name = 'dic_win'
+    dic_name = 'dic_sjis'
     play_name = 'play'
 elif os_now == 'Darwin':
     os_name = 'osx'
     bat_name = 'open_jtalk_mac'
-    dic_name = 'dic'
+    dic_name = 'dic_utf8'
     play_name = 'afplay' 
 elif os_now == 'Linux':
     os_name = 'linux'
@@ -48,7 +48,7 @@ dir = os.path.abspath(os.path.dirname(__file__)) + '/openjtalk/'
 def jtalk(t):
     # 設定 %%%%%%%%%%%%%%%%%%%
     open_jtalk=[dir + 'bin/' + bat_name]
-    mech = ['-x', dir + '1.09/' + dic_name]
+    mech = ['-x', dir + dic_name]
     htsvoice = ['-m', dir + 'voice/' + voice_char]
     speed = ['-r', speech_rate]
     outwav = ['-ow', dir + 'tmp/open_jtalk.wav']
