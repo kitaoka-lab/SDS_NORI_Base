@@ -92,6 +92,10 @@ APIスクリプトの仕様に合わせて作成したスクリプトを，API�
 
 
 ## 注意
-docomo　APIを使うときには，simplejsonモジュールをインストールする必要がある
+docomo　APIを使うときには，以下のモジュールをインストールする必要がある
 
-`$ pip install simplejson`
+'''
+$ pip install requests
+$ pip install simplejson
+'''
+
