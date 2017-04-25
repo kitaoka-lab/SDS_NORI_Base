@@ -56,7 +56,9 @@ def readOption():
                     help="select input method (" + ', '.join(INlist) + ")", metavar="InputMethod")
     parser.add_option("-o", "--output", type="string", dest="output", default=OUTlist[0],
                     help="select output method (" + ', '.join(OUTlist) + ")", metavar="OutputMethod")
-
+    parser.add_option("-l", "--led",
+                    action="store_true", dest="led", default=False,
+                    help="use LED HIKARI agent")
     return parser.parse_args()
 
 
@@ -138,6 +140,10 @@ if __name__=="__main__":
     if options.output == "jtalk":               # input オプションが「julius」に設定されていたら
         from speech import jtalk                # Juliusモジュール読み込み（サーバ起動など，初期化処理もなされる）
 
+    # LED光エージェントモジュール読み込み %%%%%%%%%%%%
+    if options.led:
+        from LED import LEDcontroller2
+
     # 対話ループ ##################################
     message = ''
     while 'バイバイ' not in message:
@@ -151,10 +157,27 @@ if __name__=="__main__":
             print (message)
 
         # ユーザ入力を，APIに投げる %%%%%%%%%%%%%
-        resp = eval('api_module.' + options.api + '.send_and_get')(message)
+        resp_api = eval('api_module.' + options.api + '.send_and_get')(message)
+
+        # LED光エージェントを使う場合には，led_keyも返ってくるので，その処理
+        if options.led:
+            if options.api == 'test':
+                resp = resp_api[0]
+                led_key = resp_api[1]
+            else:
+                resp = resp_api
+                led_key = '0'
+        else:
+            resp = resp_api
+
+        # システム応答表示 %%%%%%%%%%%%%%%%%%%%%
         print('相手　：', file=sys.stderr, end="")
         sys.stderr.flush()
         print(resp)
+
+        # LED光エージェントを光らせる %%%%%%%%%%%
+        if options.led:
+            LEDcontroller2.LED(led_key)
 
         # 音声合成器(OpenJTalk)起動 & 再生 %%%%%
         if options.output == "jtalk":
