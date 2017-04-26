@@ -160,11 +160,6 @@ if __name__=="__main__":
         resp_api = eval('api_module.' + options.api + '.send_and_get')(message)
 
         # LED光エージェントを使う場合には，led_keyも返ってくるので，その処理
-        print('要素数：' + str(len(resp_api)) )
-        print('リスト？：' + str(isinstance(resp_api, list)) )
-        print('タプル？：' + str(isinstance(resp_api, tuple)) )
-        print('文字列？：' + str(isinstance(resp_api, str)) )
-
         led_key = '0'                       # デフォルト値（消灯）で初期化
         if isinstance(resp_api, tuple):     # 応答がタプル形式なら，「応答，led_key」となっているので分割
             resp = resp_api[0]
