@@ -121,8 +121,12 @@ def main():
   # 送信部（メインループ）%%%%%%%%%%%%%%%%%%%%%%%%%%%
   while True:      
     # ユーザ入力 -------------------------
-    key = getch()
+    if os_now == 'Windows':
+      key = getch().decode('utf-8')
+    else:
+      key = getch()
 
+    print('str' + str(key))
     # qが押されたら終了
     if key == 'q': # q
       ser.write(bytes('#-1\n', 'utf-8'))
