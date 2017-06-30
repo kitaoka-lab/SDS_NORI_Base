@@ -12,7 +12,7 @@ import re                           # 文字列検索用
 # 各種設定項目 ##################################################
 OSlist = ["Windows", "Darwin", "Linux"]     # 対応するOSのリスト（platform.system()で得られる値にすること）
 
-AM_SELECT = 'gmm'                           # 音響モデルの選択 gmm か　dnn
+AM_SELECT = 'dnn'                           # 音響モデルの選択 gmm か　dnn
 DEBUG_FLAG = False                          # デバッグ出力（stderrに詳細認識結果）を出力するか
 
 JULIUS_HOST = 'localhost'                   # juliusのホスト
