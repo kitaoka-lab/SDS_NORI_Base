@@ -124,7 +124,7 @@ if __name__=="__main__":
 
         # スリープ（1秒毎にカウントダウンを表示）
         print ("Waiting for julius... ", end="")
-        countdown(5)
+        countdown(8)
 
          # TCPクライアントを作成し接続
         print ("Connect to julius server ...  ")
