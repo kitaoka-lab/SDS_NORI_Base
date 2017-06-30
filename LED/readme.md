@@ -1,8 +1,15 @@
 # LED光エージェント
 
 ## 関係者情報
-- 作成者：石黒祥生（名古屋大学）ishiguro.yoshio@g.sp.m.is.nagoya-u.ac.jp
-- プログラム更新＆ドキュメント作成者：西村良太（徳島大学） ryota@nishimura.name
+- 元プログラム
+    - 作成者：石黒祥生（名古屋大学）ishiguro.yoshio@g.sp.m.is.nagoya-u.ac.jp
+    - Arduino用LEDプログラム、PCからの制御用Processプログラム
+- 新プログラム
+    - 作成者：西村良太（徳島大学） ryota@nishimura.name
+    - プログラム更新（Python3にて実装）、ドキュメント作成
+
+## 説明
+このプログラムは、LED光エージェントを、PCからシリアルポート接続で光らせるものである。キーボードの数字キーなどを押下することで、数種類の光らせ方をさせることができる。また、他のpythonスクリプトからモジュールとしてimportすることで、光エージェントを光らせることもできる。その場合には、関数`LED(key)`を用いる。`key`に、キーボード押下時と同様の数字を入れることで、対応する光り方をする。
 
 ## LED光エージェントの動作
 必要環境をセットアップし，動作させると，接続元PCの数字キー（テンキーでも，フルキーでも動作する）を押すと，対応する動きが行われる．
@@ -24,7 +31,7 @@
 実際には，操作側PC（Processingプログラム）から，シリアル通信にて信号が発信され，Arduinoがその信号を受け取り，対応する動作（光り方）を行う．
 
 ## 使用機器
-- 操作用PC（ProcessingがインストールされたPC　OSはなんでも良い）
+- 操作用PC（Python3が実行可能なPC　OSはなんでも良い）
 - LED光エージェント（Arduino DUE基盤に，フルカラーシリアルLEDを接続したもの）
 - USBケーブル（Type Aオス - Type Microオス）
 
@@ -112,32 +119,9 @@ Set boot flash true
 CPU reset.
 ```
 
-### ProcessingによるArduino制御プログラム実行
-#### ダウンロード
-Processingは（執筆時点では）最新版のv3.3.1でも動作可能です．
-
-Processingのホーム
-https://processing.org/
-から，DOWNLOAD
-https://processing.org/download/
-をたどり，自分のOS用の環境をダウンロードしてインストールする．
-
-#### 準備
-- Processingを起動し，LEDcontroller2.pde を読み込む
-- 接続するシリアルポートを書き換える（プログラム59行目）
-    - `String portName = Serial.list()[3];`
-    - 末尾の[3] に入っている数字を変更する．
-    - Windowsの場合には，0 にする
-    - MacOSの場合には，一度プログラムを実行して表示されるポート一覧を見て入力する
-        - 表示例：以下の場合4つのデバイスが表示されているが，0からカウントしていくので，1の場所に「/dev/cu.usbmodem1411 (Arduinoにつながっているポート)」が表示されている．よって，設定は [1] となる．
-        - ``` /dev/cu.Bluetooth-Incoming-Port /dev/cu.usbmodem1411 /dev/tty.Bluetooth-Incoming-Port /dev/tty.usbmodem1411 ```
-
-#### 実行
-- プログラムを正しく設定し，Processingの再生ボタン（▶）をクリックすれば，実行可能
-
-## 操作方法
-テンキーもしくは，フルキーの数字を押す．もしくは，PC上に出現したwindowをマウスでクリックする．
-
+### PythonによるArduino制御プログラム実行
+Pythonスクリプトを実行すれば、キーボードの数字キーなどを押すことで、光エージェントを光らせることができる。
+`$ python3 ./LEDcontroller2.py`
 
 ## シリアル通信
 PCとArduinoを接続し，ArduinoIDEの ツール → シリアルモニタ を開き，そこから直接Arduinoにシリアル通信で信号を送信することができる．
