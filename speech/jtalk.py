@@ -34,8 +34,8 @@ elif os_now == 'Darwin':
     play_name = 'afplay' 
 elif os_now == 'Linux':
     os_name = 'linux'
-    bat_name = 'jtalk'
-    dic_name = 'dic'
+    bat_name = 'open_jtalk'
+    dic_name = 'dic_utf8'
     play_name = 'aplay'
 else :
     print ("\n[ERROR] This program does not support this OS (" + os_now + "). Only for (" + ', '.join(OSlist) + ").", file = sys.stderr)
@@ -75,7 +75,7 @@ def jtalk(t):
     elif os_name == "osx":
         player = play_name
     elif os_name == "linux":
-        player = ""
+        player = play_name
     else:
         print ("\n[ERROR] This program does not support this OS (" + os_now + "). Only for (" + ', '.join(OSlist) + ").", file = sys.stderr)
         sys.exit()

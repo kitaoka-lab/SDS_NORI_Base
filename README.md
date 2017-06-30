@@ -19,18 +19,18 @@
 
 ## インストール方法
 ### 1：ダウンロード
-https://github.com/sayonari/SDS_APIselect2017ver から，プログラムをclone or ダウンロード
+https://github.com/sayonari/SDS_NORI_Base から，プログラムをclone or ダウンロード
 
 cloneなら
 
-`$ git clone https://github.com/sayonari/SDS_APIselect2017ver.git`
+`$ git clone https://github.com/sayonari/SDS_NORI_Base.git`
 
 
 ダウンロードなら，githubのページからダウンロード（↓リンク）．展開しておく．
 
-https://github.com/sayonari/SDS_APIselect2017ver/archive/master.zip
+`https://github.com/sayonari/SDS_NORI_Base/archive/master.zip`
 
-### 2：juliusとopenJTalkを入れる
+### 2：juliusを入れる
 juliusはディクテーションキットをダウンロードして展開し，juliusというディレクトリ名で，speechディレクトリ内に入れる．
 
 - ディクテーションキット：http://julius.osdn.jp/index.php?q=dictation-kit.html
@@ -38,6 +38,15 @@ juliusはディクテーションキットをダウンロードして展開し�
 - ファイルを展開
 - ディレクトリ名を「julius」に変更し，speechディレクトリの中に入れる
     - 展開したディレクトリが二重になっていないかチェック
+
+
+### 3:openJTalkを入れる
+本リポジトリのreleaseから、`openjtalk.zip`をダウンロードする。
+
+```
+https://github.com/sayonari/SDS_NORI_Base/releases
+https://github.com/sayonari/SDS_NORI_Base/releases/download/1.0/openjtalk.zip
+```
 
 openJTalk は，以下のようなディレクトリ構成になるように，ファイルを用意する．
 
@@ -54,9 +63,9 @@ http://open-jtalk.sourceforge.net/
         - mei
 
 ## 実行方法
-SDS_APIselect2017ver.pyを実行するだけ．
+NORI_Base.pyを実行するだけ．
 
-`$ python3 ./SDS_APIselect2017ver.py`
+`$ python3 ./NORI_Base.py`
 
 オプションに対応している．`-h` をつけて起動すると，HELPが表示される．
 
