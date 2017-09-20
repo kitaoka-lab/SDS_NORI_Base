@@ -73,6 +73,13 @@ def kill():
     subprocess.Popen("TASKKILL /F /PID {pid} /T".format(pid=julius_proc.pid))
     print("julius server is killed!")
 
+# julius pause #########################################
+def julius_pause(sock):
+    sock.send(b'PAUSE\n')
+
+# julius resume #########################################
+def julius_resume(sock):
+    sock.send(b'RESUME\n')
 
 # julius応答XML → 平文 #########################################
 def julius_output(sock):
