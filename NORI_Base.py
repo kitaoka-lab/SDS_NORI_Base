@@ -124,7 +124,7 @@ if __name__=="__main__":
 
         # スリープ（1秒毎にカウントダウンを表示）
         print ("Waiting for julius... ", end="")
-        countdown(8)
+        countdown(10)
 
          # TCPクライアントを作成し接続
         print ("Connect to julius server ...  ")
@@ -155,6 +155,7 @@ if __name__=="__main__":
         elif options.input == "julius":     # 入力方法が julius なら
             message = julius.julius_output(client)
             print (message)
+            julius.julius_pause(client)     # juliusエンジンを止める
 
         # ユーザ入力を，APIに投げる %%%%%%%%%%%%%
         resp_api = eval('api_module.' + options.api + '.send_and_get')(message)
@@ -179,6 +180,9 @@ if __name__=="__main__":
         # 音声合成器(OpenJTalk)起動 & 再生 %%%%%
         if options.output == "jtalk":
             jtalk.jtalk(resp)
+
+        if options.input == "julius":     # 入力方法が julius なら
+            julius.julius_resume(client)     # juliusエンジン再開
 
     # 終了処理 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     julius.kill()   #　ちゃんと動かず●●
