@@ -67,7 +67,6 @@ def countdown(t): # in seconds
     print('count down: ', end="")
     for i in range(t,0,-1):
         print(str(i) + " ", end="")
-        sys.stdout.flush()
         time.sleep(1)
     print("")
 
@@ -104,8 +103,8 @@ if __name__=="__main__":
         sys.exit()
     
     # debug flag ----------------------------------------
-    if options.debug: print ("DEBUG: " + str(options.debug))
-
+    if options.debug:
+        print ("DEBUG: " + str(options.debug))
 
     # OSチェック %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if platform.system() in OSlist:
@@ -133,6 +132,7 @@ if __name__=="__main__":
             client.connect((JULIUS_HOST, JULIUS_PORT))
         except:
             print ('Unalbe to connect julius server ...')  
+
             exit()
         print ("OK!")
 
@@ -146,6 +146,8 @@ if __name__=="__main__":
 
     # 対話ループ ##################################
     message = ''
+    sys.stderr.flush()
+    sys.stdout.flush()
     while 'バイバイ' not in message:
         # ユーザ入力ターン %%%%%%%%%%%%%%%%%%%%%
         print('あなた：', file=sys.stderr, end="")
@@ -155,6 +157,8 @@ if __name__=="__main__":
         elif options.input == "julius":     # 入力方法が julius なら
             message = julius.julius_output(client)
             print (message)
+            sys.stdout.flush()
+
             julius.julius_pause(client)     # juliusエンジンを止める
 
         # ユーザ入力を，APIに投げる %%%%%%%%%%%%%
@@ -172,6 +176,7 @@ if __name__=="__main__":
         print('相手　：', file=sys.stderr, end="")
         sys.stderr.flush()
         print(resp)
+        sys.stdout.flush()
 
         # LED光エージェントを光らせる %%%%%%%%%%%
         if options.led:
