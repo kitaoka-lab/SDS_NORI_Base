@@ -23,8 +23,8 @@ def send_message(input_message):
     try:
         response = urllib.request.urlopen(url)
     except Exception as e:
-        print(e)
-        sys.exit()
+        response = "エラー：対話APIに接続できません"
+#        sys.exit()
 
     return response
 

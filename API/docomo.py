@@ -22,12 +22,20 @@ options = {}
 if shiritori_flag:
     options['mode'] = 'srtr'
 
-c = Client(apikey= APP_KEY, user=options)
+try:
+    c = Client(apikey= APP_KEY, user=options)
+except:
+    print(e)
+    sys.exit()
 
 
 # APIへメッセージを送信し，受信したメッセージをパース ###############
 def send_and_get(input_message):
-    res = c.send(utt=input_message, apiname="Dialogue")
+    try:
+        res = c.send(utt=input_message, apiname="Dialogue")
+    except:
+        return "エラー：対話APIに接続できません"
+
     return res['utt']
 
 
