@@ -8,17 +8,36 @@ import platform                     # 利用中のOSの名前を読み込む
 import socket                       # juliusとのソケット通信用
 import time                         # sleep用
 import re                           # 文字列検索用
+import signal                       # ctrl+c をつかむため
+
+from datetime import datetime       # 現在時間を取得する
 
 # 各種設定項目 ##################################################
 OSlist = ["Windows", "Darwin", "Linux"]     # 対応するOSのリスト（platform.system()で得られる値にすること）
 
 AM_SELECT = 'dnn'                           # 音響モデルの選択 gmm か　dnn
+HEADMARGIN = 300	                        # 音声区間開始部のマージン(単位: msec) 結果表示に使うだけ
+TAILMARGIN = 400	                        # 音声区間終了部のマージン(単位: msec) 結果表示に使うだけ
+
 DEBUG_FLAG = False                          # デバッグ出力（stderrに詳細認識結果）を出力するか
 
 JULIUS_HOST = 'localhost'                   # juliusのホスト
 JULIUS_PORT = 10500                         # juliusのポート
 
+LOG_OPT = ''
+LOG_DIR = ''
+
 # 初期化処理 ####################################################
+prog_starttime = datetime.now()
+
+# ctrl+c 対応 ##################################################
+def handler(signal, frame):
+    print('\nCTRL+Cで終了します！')
+    kill()
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, handler)
+
 # OSチェック %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 os_now = platform.system()
 if os_now in OSlist:
@@ -42,18 +61,28 @@ else :
 
 
 # julius起動(モジュールモード) %%%%%%%%%%%%%%%%%
-print ("julius startup ... ", end="", file = sys.stderr)
-sys.stderr.flush()
+def startup():
+    global bat_name
+    global RECORD_FLAG
 
-cmd_path = os.path.abspath(os.path.dirname(__file__)) + '/' + bat_name
-if os_now == 'Windows':
-    cmd = [cmd_path, os.path.abspath(os.path.dirname(__file__))]
-elif os_now == 'Darwin':
-    cmd = [cmd_path + ' ' + os.path.abspath(os.path.dirname(__file__))]
-elif os_now == 'Linux':
-    cmd = [cmd_path + ' ' + os.path.abspath(os.path.dirname(__file__))]
+    print ("julius startup ... ", end="", file = sys.stderr)
+    sys.stderr.flush()
 
-julius_proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+    cmd_path = os.path.abspath(os.path.dirname(__file__)) + '/' + bat_name
+    if os_now == 'Windows':
+        if LOG_OPT:
+            cmd = [cmd_path, os.path.abspath(os.path.dirname(__file__)) + '/', LOG_OPT, LOG_DIR]
+        else:
+            cmd = [cmd_path, os.path.abspath(os.path.dirname(__file__)), ]
+
+    elif os_now == 'Darwin' or os_now == 'Linux':
+        if LOG_OPT:
+            cmd = [cmd_path + ' ' + os.path.abspath(os.path.dirname(__file__)) + '/ ' + LOG_OPT + ' ' + LOG_DIR]
+        else:
+            cmd = [cmd_path + ' ' + os.path.abspath(os.path.dirname(__file__))]
+
+    julius_proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+    return julius_proc
 
 
 # カウントダウン スリープ #########################################
@@ -70,7 +99,10 @@ def countdown(t): # in seconds
 def kill():
     print('killing julius server ... ')
     #julius_proc.kill()
-    subprocess.Popen("TASKKILL /F /PID {pid} /T".format(pid=julius_proc.pid))
+    if os_now == 'Windows':
+        subprocess.Popen(["taskkill","/im","julius.exe"], shell=True)
+    elif os_now == 'Darwin' or os_now == 'Linux':
+        subprocess.Popen("pkill julius", stdout=subprocess.PIPE, shell=True)
     print("julius server is killed!")
 
 # julius pause #########################################
@@ -89,18 +121,38 @@ def julius_output(sock):
         phone_list = ''     # 認識結果の音素のリスト
         cm_list = ''        # 認識結果の信頼度のリスト
 
+        start_time = ''     # 録音開始時間
+        end_time = ''       # 録音終了時間
+
+        et = ''             # 録音開始（ミリ秒，プログラム中で図った時間）
+        st = ''             # 録音終了（ミリ秒，プログラム中で図った時間）
+
         recv_buf = ''       # 受信バッファ
+        recv_prev = ''      # <SHYPO が来るまでの履歴
+
 
         # 受信バッファに認識結果を入れる %%%%%%%%%%%%
         # （バッファしないと，結果が２回に分かれてやってくるときにバグる）
         # 認識結果開始タグが来るまで待つ ------------
         while not '<SHYPO' in recv_buf:
+            recv_prev += recv_buf
             recv_buf = ''.join(sock.recv(4096).decode('utf-8'))
+            if re.search('STARTRECOG/', recv_buf):
+                st = datetime.now() - prog_starttime
+            elif re.search('ENDRECOG/', recv_buf):
+                et = datetime.now() - prog_starttime
+
+        prev_lines = recv_prev.split('\n') 
+        for line in prev_lines:
+            if re.search('STATUS="STARTREC"', line):
+                start_time =  re.search('TIME="(.*?)"', line).group(1) 
+            elif re.search('STATUS="ENDREC"', line):
+                end_time =  re.search('TIME="(.*?)"', line).group(1) 
 
         # 認識結果終了タグが来るまでバッファする -----
         while not re.search('</SHYPO>', recv_buf):
             recv_buf += ''.join(sock.recv(4096).decode('utf-8'))
-            
+
         # 得た認識結果（XML）を解析する %%%%%%%%%%%%%
         recv_lines = recv_buf.split('\n') 
         for line in recv_lines:
@@ -121,14 +173,15 @@ def julius_output(sock):
             sys.stderr.flush()
 
         # 結果の出力（return） %%%%%%%%%%%%%%%%%%%%%
-        return re.sub(' ', '', word_list)
+        return ('%02d:%02d:%02d.%06d'%(st.seconds//3600, (st.seconds//60)%60, st.seconds%60, st.microseconds), '%02d:%02d:%02d.%06d'%(et.seconds//3600, (et.seconds//60)%60, et.seconds%60, et.microseconds), re.sub(' ', '', word_list))
 
 
 # メイン部分（本スクリプトを直接実行した際に実行される部分） #########
 if __name__ == '__main__':
+    startup()
     print ("Waiting for julius startup ... ", end="")
     sys.stdout.flush()
-    countdown(5)
+    countdown(10)
 
     # TCPクライアントを作成し接続
     print ("Connect to julius server ...  ")
@@ -142,6 +195,6 @@ if __name__ == '__main__':
 
     while True:
         # サーバの応答を受信
-        output = julius_output(client)
-        print ("julius: " + output)
+        (s, e, output) = julius_output(client)
+        print (s + '\t' + e + '\t' + "julius: " + output)
 
